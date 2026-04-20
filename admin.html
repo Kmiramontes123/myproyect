@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin </title>
+
+  <link rel="stylesheet" href="admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="admin.js" defer></script>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="loginBox" class="login">
+  <h2>Admin</h2>
+  <input type="email" id="email" placeholder="Correo">
+  <input type="password" id="password" placeholder="Contraseña">
+  <button id="btnLogin">Entrar</button>
+</div>
+
+<!-- APP -->
+<div id="app" class="app" style="display:none;">
+
+  <aside class="sidebar">
+    <h2>Panel</h2>
+    <button id="btnLogout">Cerrar sesión</button>
+  </aside>
+
+ <main class="main">
+
+  <!-- LOGO -->
+  <div class="upload">
+    <h3>Logo</h3>
+    <input type="file" id="logoInput">
+    <button id="btnLogo">Actualizar logo</button>
+    <div id="logoPreview"></div>
+  </div>
+
+  <hr>
+
+  <!-- HERO -->
+  <div class="hero"> 
+  <div class="upload">
+    <h3>Hero</h3>
+    <input type="file" id="heroInput">
+    <button id="btnHero">Actualizar portada</button>
+    <div id="heroPreview"></div>
+  </div>
+  </div>
+
+  <hr>
+
+  <!-- GALERÍA -->
+  <div class="topbar">
+    <h1>Galería</h1>
+    <span id="contador"></span>
+  </div> 
+  <div class="upload">
+    <input type="file" id="galeriaInput" multiple>
+    <button id="btnSubir">Subir imágenes</button>
+  </div>
+
+  <div id="grid" class="grid"></div>
+
+</main>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal">
+  <span id="cerrar">&times;</span>
+  <img id="modalImg">
+</div>
+
+</body>
+</html>
