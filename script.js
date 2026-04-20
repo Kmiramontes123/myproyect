@@ -127,6 +127,79 @@ async function cargarHero() {
     hero.style.backgroundPosition = "center";
   }
 }
+async function cargarCursos() {
+  const cont = document.getElementById("contenedor-cursos");
+  if (!cont) return;
+
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/cursos?select=*&activo=eq.true&order=id.asc`,
+      {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`
+        }
+      }
+    );
+
+    if (!res.ok) {
+      console.error("Error cargando cursos");
+      return;
+    }
+
+    const data = await res.json();
+
+    cont.innerHTML = "";
+
+    data.forEach(curso => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <h3>${curso.nombre}</h3>
+        <p>${curso.descripcion}</p>
+        <button onclick="scrollToReserva('${curso.nombre}')">
+          Reservar
+        </button>
+      `;
+
+      cont.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+async function cargarCursosSelect() {
+  const select = document.getElementById("curso");
+  if (!select) return;
+
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/cursos?select=nombre&activo=eq.true`,
+      {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`
+        }
+      }
+    );
+
+    const data = await res.json();
+
+    select.innerHTML = "";
+
+    data.forEach(curso => {
+      const option = document.createElement("option");
+      option.value = curso.nombre;
+      option.textContent = curso.nombre;
+      select.appendChild(option);
+    });
+
+  } catch (err) {
+    console.error(err);
+  }
+}
 
 // ================= RESERVA =================
 function reservar() {
@@ -139,8 +212,13 @@ function reservar() {
 }
 
 // ================= INIT =================
-window.addEventListener("load", () => {
+ 
+
+  window.addEventListener("load", () => {
   cargarHero();
   cargarLogo();
   cargarImagenes();
+  cargarCursos();
+  cargarCursosSelect();
 });
+ 

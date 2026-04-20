@@ -217,3 +217,55 @@ body {
   font-size: 30px;
   cursor: pointer;
 }
+/* ================= CURSOS ADMIN ================= */
+.cursos-admin {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.cursos-admin h2 {
+  margin-bottom: 15px;
+}
+
+/* inputs y textarea */
+.cursos-admin input[type="text"],
+.cursos-admin textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: inherit;
+}
+
+.cursos-admin textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* checkbox */
+.cursos-admin label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+/* botón guardar */
+.cursos-admin button {
+  padding: 10px 15px;
+  border: none;
+  background: #111;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.cursos-admin button:hover {
+  background: #333;
+}

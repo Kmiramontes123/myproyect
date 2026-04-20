@@ -102,6 +102,7 @@ async function checkUser() {
     cargarLogo();
     cargarHero();
     cargarGaleria();
+    cargarCursosAdmin();
   }
 }
 
@@ -325,6 +326,185 @@ async function cargarGaleria() {
     div.appendChild(btn);
     grid.appendChild(div);
   });
+}
+const btnGuardarCurso = document.getElementById("btnGuardarCurso");
+
+if (btnGuardarCurso) {
+  btnGuardarCurso.onclick = async () => {
+    const nombre = document.getElementById("cursoNombre").value;
+    const descripcion = document.getElementById("cursoDescripcion").value;
+    const activo = document.getElementById("cursoActivo").checked;
+
+    if (!nombre) {
+      alert("El nombre es obligatorio");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/cursos`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify({
+          nombre,
+          descripcion,
+          activo
+        })
+      });
+
+      if (!res.ok) {
+        alert("Error al guardar curso");
+        console.error(await res.text());
+        return;
+      }
+
+      alert("Curso guardado correctamente");
+
+      // limpiar campos
+      document.getElementById("cursoNombre").value = "";
+      document.getElementById("cursoDescripcion").value = "";
+      document.getElementById("cursoActivo").checked = true;
+
+    } catch (err) {
+      console.error(err);
+      alert("Error inesperado");
+    }
+  };
+}
+async function cargarCursosAdmin() {
+  const cont = document.getElementById("listaCursos");
+  if (!cont) return;
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/cursos?select=*`, {
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`
+      }
+    });
+
+    const data = await res.json();
+
+    cont.innerHTML = "";
+
+    data.forEach(curso => {
+      const div = document.createElement("div");
+      div.className = "curso-item";
+
+      div.innerHTML = `
+        <div>
+          <strong>${curso.nombre}</strong><br>
+          <small>${curso.descripcion || ""}</small><br>
+          <small>${curso.activo ? "🟢 Activo" : "🔴 Inactivo"}</small>
+        </div>
+
+        <div>
+          <button onclick="editarCurso(${curso.id}, '${curso.nombre}', \`${curso.descripcion || ""}\`, ${curso.activo})">✏️</button>
+          <button onclick="eliminarCurso(${curso.id})">🗑️</button>
+        </div>
+      `;
+
+      cont.appendChild(div);
+    });
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+function editarCurso(id, nombre, descripcion, activo) {
+  document.getElementById("cursoNombre").value = nombre;
+  document.getElementById("cursoDescripcion").value = descripcion;
+  document.getElementById("cursoActivo").checked = activo;
+
+  // guardamos id temporal
+  document.getElementById("btnGuardarCurso").dataset.id = id;
+}
+btnGuardarCurso.onclick = async () => {
+  const nombre = document.getElementById("cursoNombre").value;
+  const descripcion = document.getElementById("cursoDescripcion").value;
+  const activo = document.getElementById("cursoActivo").checked;
+
+  const id = btnGuardarCurso.dataset.id;
+
+  if (!nombre) {
+    alert("El nombre es obligatorio");
+    return;
+  }
+
+  try {
+    let res;
+
+    if (id) {
+      // UPDATE
+      res = await fetch(`${SUPABASE_URL}/rest/v1/cursos?id=eq.${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`
+        },
+        body: JSON.stringify({ nombre, descripcion, activo })
+      });
+    } else {
+      // INSERT
+      res = await fetch(`${SUPABASE_URL}/rest/v1/cursos`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify({ nombre, descripcion, activo })
+      });
+    }
+
+    if (!res.ok) {
+      alert("Error");
+      console.error(await res.text());
+      return;
+    }
+
+    alert("Guardado correctamente");
+
+    // limpiar
+    document.getElementById("cursoNombre").value = "";
+    document.getElementById("cursoDescripcion").value = "";
+    document.getElementById("cursoActivo").checked = true;
+    delete btnGuardarCurso.dataset.id;
+
+    cargarCursosAdmin();
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+async function eliminarCurso(id) {
+  if (!confirm("¿Eliminar curso?")) return;
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/cursos?id=eq.${id}`, {
+      method: "DELETE",
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`
+      }
+    });
+
+    if (!res.ok) {
+      alert("Error al eliminar");
+      return;
+    }
+
+    cargarCursosAdmin();
+
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 // ================= INIT =================
