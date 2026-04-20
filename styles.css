@@ -566,6 +566,24 @@ nav a:hover {
     padding: 12px 16px;
   }
 }
+/* ================= CONTADOR ================= */
+.contador {
+  background: #111;
+  color: #fff;
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.contador-box h2 {
+  font-size: 48px;
+  font-weight: 700;
+}
+
+.contador-box p {
+  margin-top: 10px;
+  font-size: 18px;
+  color: #ccc;
+}
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {

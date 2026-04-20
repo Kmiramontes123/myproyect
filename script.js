@@ -211,6 +211,52 @@ function reservar() {
   window.open(url, "_blank");
 }
 
+function animarContador() {
+  const el = document.getElementById("contadorNumero");
+  if (!el) return;
+
+  let inicio = 0;
+  let fin = 250; // 👈 aquí cambias el número final
+  let duracion = 2000;
+
+  let incremento = Math.ceil(fin / (duracion / 20));
+
+  let intervalo = setInterval(() => {
+    inicio += incremento;
+
+    if (inicio >= fin) {
+      el.textContent = fin;
+      clearInterval(intervalo);
+    } else {
+      el.textContent = inicio;
+    }
+  }, 20);
+}
+function contadorPro() {
+  const el = document.getElementById("contadorNumero");
+  if (!el) return;
+
+  let valor = 0;
+  let max = 150; // 👈 límite
+
+  function actualizar() {
+    if (valor >= max) {
+      el.textContent = max.toLocaleString();
+      return; // 🔴 se detiene
+    }
+
+    valor += Math.floor(Math.random() * 8) + 3;
+
+    el.textContent = valor.toLocaleString();
+
+    setTimeout(actualizar, 80 + Math.random() * 120);
+  }
+
+  actualizar();
+}
+
+window.addEventListener("load", contadorPro);
+
 // ================= INIT =================
  
 
