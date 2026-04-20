@@ -488,6 +488,84 @@ nav a:hover {
   opacity: 1;
   transform: translateX(0);
 }
+/* base compartida */
+.whatsapp,
+.instagram {
+  position: fixed;
+  right: 25px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px 18px;
+  border-radius: 50px;
+
+  color: #fff;
+  text-decoration: none;
+
+  font-size: 16px;
+  font-weight: 500;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  transition: all 0.3s ease;
+
+  overflow: hidden;
+  z-index: 999;
+}
+
+/* ICONO */
+.whatsapp i,
+.instagram i {
+  font-size: 22px;
+}
+
+/* TEXTO (oculto al inicio) */
+.whatsapp span,
+.instagram span {
+  opacity: 0;
+  max-width: 0;
+  white-space: nowrap;
+  transition: 0.3s ease;
+}
+
+/* HOVER → aparece texto */
+.whatsapp:hover span,
+.instagram:hover span {
+  opacity: 1;
+  max-width: 120px;
+}
+
+/* POSICIÓN */
+.whatsapp {
+  bottom: 25px;
+  background: linear-gradient(135deg, #25D366, #1ebe5d);
+}
+
+.instagram {
+  bottom: 95px;
+  background: linear-gradient(135deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5);
+}
+
+/* HOVER GENERAL */
+.whatsapp:hover,
+.instagram:hover {
+  transform: translateX(-5px) scale(1.05);
+}
+
+/* 📱 MÓVIL → texto siempre visible */
+@media (max-width: 600px) {
+  .whatsapp span,
+  .instagram span {
+    opacity: 1;
+    max-width: 120px;
+  }
+
+  .whatsapp,
+  .instagram {
+    padding: 12px 16px;
+  }
+}
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
