@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Admin </title>
+  <title>Admin</title>
 
   <link rel="stylesheet" href="admin.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
@@ -27,62 +27,91 @@
     <button id="btnLogout">Cerrar sesión</button>
   </aside>
 
- <main class="main">
+  <main class="main">
 
-  <!-- LOGO -->
-  <div class="upload">
-    <h3>Logo</h3>
-    <input type="file" id="logoInput">
-    <button id="btnLogo">Actualizar logo</button>
-    <div id="logoPreview"></div>
-  </div>
+    <!-- 🔥 DASHBOARD -->
+    <div class="dashboard">
+      <div class="cards-dashboard">
 
-  <hr>
+        <div class="card-dash" onclick="irASeccion('cursos')">
+          <h3>Cursos</h3>
+          <p id="totalCursos">0</p>
+        </div>
 
-  <!-- HERO -->
-  <div class="hero"> 
-  <div class="upload">
-    <h3>Hero</h3>
-    <input type="file" id="heroInput">
-    <button id="btnHero">Actualizar portada</button>
-    <div id="heroPreview"></div>
-  </div>
-  </div>
+        <div class="card-dash" onclick="irASeccion('activos')">
+          <h3>Activos</h3>
+          <p id="cursosActivos">0</p>
+        </div>
 
-  <hr>
+        <div class="card-dash" onclick="irASeccion('imagenes')">
+          <h3>Imágenes</h3>
+          <p id="totalImagenes">0</p>
+        </div>
 
-  <!-- GALERÍA -->
-  <div class="topbar">
-    <h1>Galería</h1>
-    <span id="contador"></span>
-  </div> 
-  <div class="upload">
-    <input type="file" id="galeriaInput" multiple>
-    <button id="btnSubir">Subir imágenes</button>
-  </div>
+      </div>
+    </div>
 
-  <div id="grid" class="grid"></div>
+    <!-- LOGO -->
+    <div class="upload">
+      <h3>Logo</h3>
+      <input type="file" id="logoInput">
+      <button id="btnLogo">Actualizar logo</button>
+      <div id="logoPreview"></div>
+    </div>
 
-  <!-- CURSOS -->
-<hr>
+    <hr>
 
-<div class="cursos-admin">
-  <h2>Crear Curso</h2>
+    <!-- HERO -->
+    <div class="hero-admin"> 
+      <div class="upload">
+        <h3>Hero</h3>
+        <input type="file" id="heroInput">
+        <button id="btnHero">Actualizar portada</button>
+        <div id="heroPreview"></div>
+      </div>
+    </div>
 
-  <input type="text" id="cursoNombre" placeholder="Nombre del curso">
-  <textarea id="cursoDescripcion" placeholder="Descripción"></textarea>
+    <hr>
 
-  <label>
-    <input type="checkbox" id="cursoActivo" checked>
-    Activo
-  </label>
+    <!-- GALERÍA -->
+    <div class="topbar" id="seccionGaleria">
+      <h1>Galería</h1>
+      <span id="contador"></span>
+    </div> 
 
-  <button id="btnGuardarCurso">Guardar curso</button>
-</div>
-<div class="lista-cursos" id="listaCursos"></div>
+    <div class="upload">
+      <input type="file" id="galeriaInput" multiple>
+      <button id="btnSubir">Subir imágenes</button>
+    </div>
 
-</main>
+    <div id="grid" class="grid"></div>
 
+    <!-- CURSOS -->
+    <hr>
+
+    <div class="cursos-admin" id="seccionCursos">
+      <h2>Crear Curso</h2>
+
+      <input type="text" id="cursoNombre" placeholder="Nombre del curso">
+      <textarea id="cursoDescripcion" placeholder="Descripción"></textarea>
+
+      <input type="file" id="cursoImagen" accept="image/*">
+
+      <!-- preview imagen -->
+      <div id="previewCurso"></div>
+
+      <label>
+        <input type="checkbox" id="cursoActivo" checked>
+        Activo
+      </label>
+
+      <button id="btnGuardarCurso">Guardar curso</button>
+    </div>
+
+    <!-- LISTA -->
+    <div class="lista-cursos" id="listaCursos"></div>
+
+  </main>
 </div>
 
 <!-- MODAL -->

@@ -1,16 +1,7 @@
 console.log("BTN LOGIN:", document.getElementById("btnLogin"));
 const SUPABASE_URL = "https://fmecckzpxwygpozznjnk.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtZWNja3pweHd5Z3Bvenpuam5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzODIzMDEsImV4cCI6MjA5MTk1ODMwMX0.1IV2Oh99gbrG88Nx6sScZ74lKQC3O6sXDhM9jAOS-dc";
-
-
-
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true
-  }
-});
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ================= ELEMENTOS =================
 const loginBox = document.getElementById("loginBox");
@@ -19,76 +10,31 @@ const app = document.getElementById("app");
 const btnLogin = document.getElementById("btnLogin");
 const btnLogout = document.getElementById("btnLogout");
 
-const btnLogo = document.getElementById("btnLogo");
-const btnHero = document.getElementById("btnHero");
-const btnSubir = document.getElementById("btnSubir");
-
-const logoInput = document.getElementById("logoInput");
-const heroInput = document.getElementById("heroInput");
-const galeriaInput = document.getElementById("galeriaInput");
-
-const logoPreview = document.getElementById("logoPreview");
-const heroPreview = document.getElementById("heroPreview");
-const grid = document.getElementById("grid");
-
-// ================= MENSAJES =================
-function mostrarMensaje(texto, tipo = "success") {
-  const msg = document.createElement("div");
-
-  msg.textContent = texto;
-  msg.style.position = "fixed";
-  msg.style.bottom = "20px";
-  msg.style.right = "20px";
-  msg.style.padding = "12px 18px";
-  msg.style.borderRadius = "10px";
-  msg.style.color = "#fff";
-  msg.style.fontSize = "14px";
-  msg.style.zIndex = "9999";
-  msg.style.boxShadow = "0 10px 20px rgba(0,0,0,0.2)";
-  msg.style.transition = "0.3s ease";
-  msg.style.background = tipo === "error" ? "#e74c3c" : "#2ecc71";
-
-  document.body.appendChild(msg);
-
-  setTimeout(() => {
-    msg.style.opacity = "0";
-    msg.style.transform = "translateY(10px)";
-  }, 2000);
-
-  setTimeout(() => msg.remove(), 2600);
-}
+const btnGuardarCurso = document.getElementById("btnGuardarCurso");
+const cursoImagen = document.getElementById("cursoImagen");
 
 // ================= LOGIN =================
-btnLogin.addEventListener("click", async () => {
+btnLogin.onclick = async () => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
+  const { error } = await supabaseClient.auth.signInWithPassword({
     email,
     password
   });
 
   if (error) {
-    mostrarMensaje(error.message, "error");
+    alert(error.message);
     return;
   }
 
-  mostrarMensaje("Login correcto");
   checkUser();
-});
+};
 
 // ================= LOGOUT =================
 btnLogout.onclick = async () => {
   await supabaseClient.auth.signOut();
-
-  loginBox.style.display = "flex";
-  app.style.display = "none";
-
-  logoPreview.innerHTML = "";
-  heroPreview.innerHTML = "";
-  grid.innerHTML = "";
-
-  mostrarMensaje("Sesión cerrada");
+  location.reload();
 };
 
 // ================= CHECK USER =================
@@ -96,18 +42,65 @@ async function checkUser() {
   const { data } = await supabaseClient.auth.getUser();
 
   if (data.user) {
-    loginBox.style.display = "none";
-    app.style.display = "flex";
+  loginBox.style.display = "none";
+  app.style.display = "flex";
 
-    cargarLogo();
-    cargarHero();
-    cargarGaleria();
-    cargarCursosAdmin();
+  cargarCursosAdmin();
+  cargarDashboard(); 
+  cargarLogo();
+  cargarHero();
+  cargarGaleria();
+}
   }
+
+async function cargarLogo() {
+  const { data } = await supabaseClient
+    .from("configuracion")
+    .select("logo_url")
+    .eq("id", 1)
+    .single();
+
+  const cont = document.getElementById("logoPreview");
+  cont.innerHTML = "";
+
+  if (!data?.logo_url) return;
+
+  cont.innerHTML = `<img src="${data.logo_url}" width="120">`;
+}
+async function cargarHero() {
+  const { data } = await supabaseClient
+    .from("configuracion")
+    .select("hero_url")
+    .eq("id", 1)
+    .single();
+
+  const cont = document.getElementById("heroPreview");
+  cont.innerHTML = "";
+
+  if (!data?.hero_url) return;
+
+  cont.innerHTML = `<img src="${data.hero_url}" width="200">`;
+}
+async function cargarGaleria() {
+  const { data } = await supabaseClient
+    .from("imagenes")
+    .select("*")
+    .order("id", { ascending: false });
+
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+
+  data.forEach(img => {
+    grid.innerHTML += `
+      <div>
+        <img src="${img.url}" width="120">
+      </div>
+    `;
+  });
 }
 
 // ================= COMPRESIÓN =================
-function comprimirImagen(file, calidad = 0.8, maxWidth = 1200) {
+function comprimirImagen(file) {
   return new Promise(resolve => {
     const img = new Image();
     const reader = new FileReader();
@@ -117,317 +110,27 @@ function comprimirImagen(file, calidad = 0.8, maxWidth = 1200) {
 
     img.onload = () => {
       const canvas = document.createElement("canvas");
-
-      let w = img.width;
-      let h = img.height;
-
-      if (w > maxWidth) {
-        h = Math.round(h * (maxWidth / w));
-        w = maxWidth;
-      }
-
-      canvas.width = w;
-      canvas.height = h;
-
       const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, w, h);
 
-      canvas.toBlob(blob => resolve(blob), "image/webp", calidad);
+      const maxW = 800;
+      const scale = maxW / img.width;
+
+      canvas.width = maxW;
+      canvas.height = img.height * scale;
+
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob(blob => resolve(blob), "image/webp", 0.8);
     };
   });
 }
 
-// ================= LOGO =================
-btnLogo.onclick = async () => {
-  const file = logoInput.files[0];
-  if (!file) return;
-
-  const blob = await comprimirImagen(file);
-  const imgFile = new File([blob], "logo.webp", { type: "image/webp" });
-
-  const { error } = await supabaseClient.storage
-    .from("imagenes")
-    .upload("logo.webp", imgFile, { upsert: true });
-
-  if (error) return mostrarMensaje(error.message, "error");
-
-  const { data } = supabaseClient.storage
-    .from("imagenes")
-    .getPublicUrl("logo.webp");
-
-  await supabaseClient
-    .from("configuracion")
-    .update({ logo_url: data.publicUrl })
-    .eq("id", 1);
-
-  mostrarMensaje("Logo actualizado");
-  cargarLogo();
-};
-
-async function cargarLogo() {
-  const { data } = await supabaseClient
-    .from("configuracion")
-    .select("logo_url")
-    .eq("id", 1)
-    .single();
-
-  logoPreview.innerHTML = "";
-  if (!data?.logo_url) return;
-
-  const box = document.createElement("div");
-  box.className = "preview-box";
-
-  const img = document.createElement("img");
-  img.src = data.logo_url;
-
-  const btn = document.createElement("button");
-  btn.innerText = "X";
-
-  btn.onclick = async () => {
-    await supabaseClient.storage.from("imagenes").remove(["logo.webp"]);
-    await supabaseClient.from("configuracion")
-      .update({ logo_url: null })
-      .eq("id", 1);
-
-    mostrarMensaje("Logo eliminado");
-    cargarLogo();
-  };
-
-  box.appendChild(img);
-  box.appendChild(btn);
-  logoPreview.appendChild(box);
-}
-
-// ================= HERO =================
-btnHero.onclick = async () => {
-  const file = heroInput.files[0];
-  if (!file) return;
-
-  const blob = await comprimirImagen(file);
-  const imgFile = new File([blob], "hero.webp", { type: "image/webp" });
-
-  const { error } = await supabaseClient.storage
-    .from("imagenes")
-    .upload("hero.webp", imgFile, { upsert: true });
-
-  if (error) return mostrarMensaje(error.message, "error");
-
-  const { data } = supabaseClient.storage
-    .from("imagenes")
-    .getPublicUrl("hero.webp");
-
-  await supabaseClient
-    .from("configuracion")
-    .update({ hero_url: data.publicUrl })
-    .eq("id", 1);
-
-  mostrarMensaje("Hero actualizado");
-  cargarHero();
-};
-
-async function cargarHero() {
-  const heroPreview = document.getElementById("heroPreview");
-  heroPreview.innerHTML = "";
-
-  const { data } = await supabaseClient
-    .from("configuracion")
-    .select("hero_url")
-    .eq("id", 1)
-    .single();
-
-  if (!data?.hero_url) return;
-
-  const box = document.createElement("div");
-  box.className = "preview-box";
-
-  const img = document.createElement("img");
-  img.src = data.hero_url;
-
-  const btn = document.createElement("button");
-  btn.innerText = "X";
-
-  btn.onclick = async () => {
-    await supabaseClient.storage.from("imagenes").remove(["hero.webp"]);
-    await supabaseClient.from("configuracion")
-      .update({ hero_url: null })
-      .eq("id", 1);
-
-    mostrarMensaje("Hero eliminado");
-    cargarHero();
-  };
-
-  box.appendChild(img);
-  box.appendChild(btn);
-  heroPreview.appendChild(box);
-}
-
-// ================= GALERÍA =================
-btnSubir.onclick = async () => {
-  const files = galeriaInput.files;
-  if (!files.length) return;
-
-  for (let file of files) {
-    const blob = await comprimirImagen(file);
-    const name = `${Date.now()}_${file.name}`;
-
-    const imgFile = new File([blob], name, { type: "image/webp" });
-
-    const { error } = await supabaseClient.storage
-      .from("imagenes")
-      .upload(name, imgFile);
-
-    if (error) {
-      mostrarMensaje("Error subiendo imagen", "error");
-      continue;
-    }
-
-    const { data } = supabaseClient.storage
-      .from("imagenes")
-      .getPublicUrl(name);
-
-    await supabaseClient
-      .from("imagenes")
-      .insert({ url: data.publicUrl });
-  }
-
-  galeriaInput.value = "";
-  mostrarMensaje("Imágenes subidas");
-  cargarGaleria();
-};
-
-async function cargarGaleria() {
-  const { data } = await supabaseClient
-    .from("imagenes")
-    .select("*")
-    .order("id", { ascending: false });
-
-  grid.innerHTML = "";
-
-  data.forEach(img => {
-    const div = document.createElement("div");
-
-    const image = document.createElement("img");
-    image.src = img.url;
-
-    const btn = document.createElement("button");
-    btn.innerText = "X";
-
-    btn.onclick = async () => {
-      const fileName = img.url.split("/imagenes/")[1];
-
-      await supabaseClient.storage.from("imagenes").remove([fileName]);
-      await supabaseClient.from("imagenes").delete().eq("id", img.id);
-
-      mostrarMensaje("Imagen eliminada");
-      cargarGaleria();
-    };
-
-    div.appendChild(image);
-    div.appendChild(btn);
-    grid.appendChild(div);
-  });
-}
-const btnGuardarCurso = document.getElementById("btnGuardarCurso");
-
-if (btnGuardarCurso) {
-  btnGuardarCurso.onclick = async () => {
-    const nombre = document.getElementById("cursoNombre").value;
-    const descripcion = document.getElementById("cursoDescripcion").value;
-    const activo = document.getElementById("cursoActivo").checked;
-
-    if (!nombre) {
-      alert("El nombre es obligatorio");
-      return;
-    }
-
-    try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/cursos`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`,
-          Prefer: "return=minimal"
-        },
-        body: JSON.stringify({
-          nombre,
-          descripcion,
-          activo
-        })
-      });
-
-      if (!res.ok) {
-        alert("Error al guardar curso");
-        console.error(await res.text());
-        return;
-      }
-
-      alert("Curso guardado correctamente");
-
-      // limpiar campos
-      document.getElementById("cursoNombre").value = "";
-      document.getElementById("cursoDescripcion").value = "";
-      document.getElementById("cursoActivo").checked = true;
-
-    } catch (err) {
-      console.error(err);
-      alert("Error inesperado");
-    }
-  };
-}
-async function cargarCursosAdmin() {
-  const cont = document.getElementById("listaCursos");
-  if (!cont) return;
-
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/cursos?select=*`, {
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`
-      }
-    });
-
-    const data = await res.json();
-
-    cont.innerHTML = "";
-
-    data.forEach(curso => {
-      const div = document.createElement("div");
-      div.className = "curso-item";
-
-      div.innerHTML = `
-        <div>
-          <strong>${curso.nombre}</strong><br>
-          <small>${curso.descripcion || ""}</small><br>
-          <small>${curso.activo ? "🟢 Activo" : "🔴 Inactivo"}</small>
-        </div>
-
-        <div>
-          <button onclick="editarCurso(${curso.id}, '${curso.nombre}', \`${curso.descripcion || ""}\`, ${curso.activo})">✏️</button>
-          <button onclick="eliminarCurso(${curso.id})">🗑️</button>
-        </div>
-      `;
-
-      cont.appendChild(div);
-    });
-
-  } catch (err) {
-    console.error(err);
-  }
-}
-function editarCurso(id, nombre, descripcion, activo) {
-  document.getElementById("cursoNombre").value = nombre;
-  document.getElementById("cursoDescripcion").value = descripcion;
-  document.getElementById("cursoActivo").checked = activo;
-
-  // guardamos id temporal
-  document.getElementById("btnGuardarCurso").dataset.id = id;
-}
+// ================= GUARDAR / EDITAR CURSO =================
 btnGuardarCurso.onclick = async () => {
   const nombre = document.getElementById("cursoNombre").value;
   const descripcion = document.getElementById("cursoDescripcion").value;
   const activo = document.getElementById("cursoActivo").checked;
-
+  const file = cursoImagen.files[0];
   const id = btnGuardarCurso.dataset.id;
 
   if (!nombre) {
@@ -435,38 +138,52 @@ btnGuardarCurso.onclick = async () => {
     return;
   }
 
-  try {
-    let res;
+  let imagen_url = null;
 
-    if (id) {
-      // UPDATE
-      res = await fetch(`${SUPABASE_URL}/rest/v1/cursos?id=eq.${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`
-        },
-        body: JSON.stringify({ nombre, descripcion, activo })
-      });
-    } else {
-      // INSERT
-      res = await fetch(`${SUPABASE_URL}/rest/v1/cursos`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`,
-          Prefer: "return=minimal"
-        },
-        body: JSON.stringify({ nombre, descripcion, activo })
-      });
+  try {
+    // eliminar imagen anterior si edita
+    if (id && file) {
+      const { data: actual } = await supabaseClient
+        .from("cursos")
+        .select("imagen_url")
+        .eq("id", id)
+        .single();
+
+      if (actual?.imagen_url) {
+        const path = actual.imagen_url.split("/imagenes/")[1];
+        await supabaseClient.storage.from("imagenes").remove([path]);
+      }
     }
 
-    if (!res.ok) {
-      alert("Error");
-      console.error(await res.text());
-      return;
+    // subir imagen nueva
+    if (file) {
+      const blob = await comprimirImagen(file);
+      const name = `cursos/${Date.now()}.webp`;
+
+      const { error } = await supabaseClient.storage
+        .from("imagenes")
+        .upload(name, blob);
+
+      if (error) {
+        alert("Error subiendo imagen");
+        return;
+      }
+
+      const { data } = supabaseClient.storage
+        .from("imagenes")
+        .getPublicUrl(name);
+
+      imagen_url = data.publicUrl;
+    }
+
+    let datos = { nombre, descripcion, activo };
+
+    if (imagen_url) datos.imagen_url = imagen_url;
+
+    if (id) {
+      await supabaseClient.from("cursos").update(datos).eq("id", id);
+    } else {
+      await supabaseClient.from("cursos").insert(datos);
     }
 
     alert("Guardado correctamente");
@@ -475,38 +192,136 @@ btnGuardarCurso.onclick = async () => {
     document.getElementById("cursoNombre").value = "";
     document.getElementById("cursoDescripcion").value = "";
     document.getElementById("cursoActivo").checked = true;
+    cursoImagen.value = "";
     delete btnGuardarCurso.dataset.id;
 
     cargarCursosAdmin();
+    cargarDashboard();
 
   } catch (err) {
     console.error(err);
+    alert("Error inesperado");
   }
 };
+
+// ================= LISTAR CURSOS =================
+async function cargarCursosAdmin() {
+  const cont = document.getElementById("listaCursos");
+
+  const { data } = await supabaseClient
+    .from("cursos")
+    .select("*")
+    .order("id", { ascending: false });
+
+  cont.innerHTML = "";
+
+  data.forEach(curso => {
+    cont.innerHTML += `
+      <div class="curso-item">
+        <img src="${curso.imagen_url || ""}" width="80">
+        <div>
+          <strong>${curso.nombre}</strong><br>
+          <small>${curso.descripcion || ""}</small><br>
+          <small>${curso.activo ? "🟢 Activo" : "🔴 Inactivo"}</small>
+        </div>
+
+        <button onclick="editarCurso(${curso.id}, '${curso.nombre}', \`${curso.descripcion || ""}\`, ${curso.activo})">✏️</button>
+        <button onclick="eliminarCurso(${curso.id})">🗑️</button>
+      </div>
+    `;
+  });
+}
+
+// ================= EDITAR =================
+function editarCurso(id, nombre, descripcion, activo) {
+  document.getElementById("cursoNombre").value = nombre;
+  document.getElementById("cursoDescripcion").value = descripcion;
+  document.getElementById("cursoActivo").checked = activo;
+
+  btnGuardarCurso.dataset.id = id;
+}
+
+// ================= ELIMINAR =================
 async function eliminarCurso(id) {
   if (!confirm("¿Eliminar curso?")) return;
 
+  const { data } = await supabaseClient
+    .from("cursos")
+    .select("imagen_url")
+    .eq("id", id)
+    .single();
+
+  if (data?.imagen_url) {
+    const path = data.imagen_url.split("/imagenes/")[1];
+    await supabaseClient.storage.from("imagenes").remove([path]);
+  }
+
+  await supabaseClient.from("cursos").delete().eq("id", id);
+
+  cargarCursosAdmin();
+  cargarDashboard();
+}
+
+// ================= DASHBOARD =================
+async function cargarDashboard() {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/cursos?id=eq.${id}`, {
-      method: "DELETE",
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`
-      }
-    });
+    const { data: cursos } = await supabaseClient.from("cursos").select("*");
+    const { data: imagenes } = await supabaseClient.from("imagenes").select("*");
 
-    if (!res.ok) {
-      alert("Error al eliminar");
-      return;
-    }
+    document.getElementById("totalCursos").textContent = cursos.length;
 
-    cargarCursosAdmin();
+    const activos = cursos.filter(c => c.activo).length;
+    document.getElementById("cursosActivos").textContent = activos;
+
+    document.getElementById("totalImagenes").textContent = imagenes.length;
 
   } catch (err) {
     console.error(err);
   }
 }
+function irASeccion(tipo) {
+
+  if (tipo === "cursos") {
+    document.getElementById("seccionCursos")
+      .scrollIntoView({ behavior: "smooth" });
+  }
+
+  if (tipo === "imagenes") {
+    document.getElementById("grid")
+      .scrollIntoView({ behavior: "smooth" });
+  }
+
+  if (tipo === "activos") {
+    document.getElementById("listaCursos")
+      .scrollIntoView({ behavior: "smooth" });
+
+    filtrarActivos();
+  }
+}
+ 
+async function filtrarActivos() {
+  const cont = document.getElementById("listaCursos");
+
+  const { data } = await supabaseClient
+    .from("cursos")
+    .select("*")
+    .eq("activo", true);
+
+  cont.innerHTML = "";
+
+  data.forEach(curso => {
+    cont.innerHTML += `
+      <div class="curso-item">
+        <img src="${curso.imagen_url || ""}" width="80">
+        <div>
+          <strong>${curso.nombre}</strong><br>
+          <small>${curso.descripcion || ""}</small>
+        </div>
+      </div>
+    `;
+  });
+}
+
 
 // ================= INIT =================
 checkUser();
- 

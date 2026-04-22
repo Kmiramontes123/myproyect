@@ -155,15 +155,34 @@ async function cargarCursos() {
       const card = document.createElement("div");
       card.className = "card";
 
-      card.innerHTML = `
-        <h3>${curso.nombre}</h3>
-        <p>${curso.descripcion}</p>
-        <button onclick="scrollToReserva('${curso.nombre}')">
-          Reservar
-        </button>
-      `;
+     card.innerHTML = `
+  
+  <h3>${curso.nombre}</h3>
+  <img src="${curso.imagen_url}" alt="${curso.nombre}"> 
+  <button class="btn-info">Información</button> 
+  <div class="info-curso">
+    <p>${curso.descripcion}</p>
+    <button onclick="scrollToReserva('${curso.nombre}')">
+      Reservar
+    </button>
+  </div>
+`;
 
       cont.appendChild(card);
+    });
+
+    // 🔥 EVENTO PARA MOSTRAR/OCULTAR
+    document.querySelectorAll(".btn-info").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const info = btn.nextElementSibling;
+
+        // 👉 si quieres que solo uno se abra:
+        document.querySelectorAll(".info-curso").forEach(el => {
+          if (el !== info) el.classList.remove("activo");
+        });
+
+        info.classList.toggle("activo");
+      });
     });
 
   } catch (err) {

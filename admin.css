@@ -269,3 +269,58 @@ body {
 .cursos-admin button:hover {
   background: #333;
 }
+.dashboard {
+  margin-bottom: 20px;
+}
+
+.cards-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.card-dash {
+  background: #fff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  text-align: center;
+  transition: 0.3s;
+}
+
+.card-dash:hover {
+  transform: translateY(-5px);
+}
+
+.card-dash h3 {
+  font-size: 14px;
+  color: #888;
+}
+
+.card-dash p {
+  font-size: 28px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+.card-dash {
+  cursor: pointer;
+}
+
+.card-dash:hover {
+  transform: translateY(-5px);
+}
+ 
+#heroPreview {
+  max-width: 250px;    
+  height: 150px;       
+}
+
+#heroPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hero-admin {
+  background: transparent;
+  height: auto;
+}
